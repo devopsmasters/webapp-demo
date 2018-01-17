@@ -7,7 +7,7 @@ node {
         checkout scm
     }
     stage('Build Source') {
-        sh mvn clean package
+        sh "mvn clean package"
 	step([$class: 'JUnitResultArchiver', testResults: '**/target/surefire-reports/TEST-*.xml'])
     }
     stage('Build image') {
