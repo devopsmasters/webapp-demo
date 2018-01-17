@@ -3,7 +3,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>spring-boot-webapp</artifactId>
+    <artifactId>springbootapp</artifactId>
     <packaging>war</packaging>
     <name>Spring Boot Web Thymeleaf Example</name>
     <description>Spring Boot Web Thymeleaf Example</description>
@@ -17,6 +17,7 @@
 
     <properties>
         <java.version>1.8</java.version>
+        <start-class>com.programmer.gate.Application</start-class>
     </properties>
 
     <dependencies>
@@ -29,7 +30,7 @@
         <!-- marked the embedded servlet container as provided -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
+            <artifactId>spring-boot-starter-tomcat</artifactId>
             <scope>provided</scope>
         </dependency>
 
@@ -46,7 +47,15 @@
             <artifactId>bootstrap</artifactId>
             <version>3.3.7</version>
         </dependency>
-
+		<dependency>
+    			<groupId>net.sourceforge.jwebunit</groupId>
+    			<artifactId>jwebunit-htmlunit-plugin</artifactId>
+    			<version>3.3</version>
+		</dependency>
+		<dependency>
+    			<groupId>junit</groupId>
+    			<artifactId>junit</artifactId>
+		</dependency>
     </dependencies>
     <build>
         <plugins>
