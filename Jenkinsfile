@@ -8,7 +8,7 @@ node {
     }
     stage('Build Source') {
         sh "mvn clean package"
-	step([$class: 'JUnitResultArchiver', testResults: '**/target/surefire-reports/TEST-*.xml'])
+	//step([$class: 'JUnitResultArchiver', testResults: '**/target/surefire-reports/TEST-*.xml'])
     }
     stage('Build image') {
 
