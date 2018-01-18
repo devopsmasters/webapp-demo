@@ -7,7 +7,8 @@ node {
         checkout scm
     }
     stage('Build Source') {
-        sh "mvn clean package"
+	sh "mvn -Dtest=HomeControllerUnitTest test"    
+        sh "mvn -Dmaven.test.skip=true clean package"
 	//step([$class: 'JUnitResultArchiver', testResults: '**/target/surefire-reports/TEST-*.xml'])
     }
     stage('Build image') {
@@ -18,7 +19,7 @@ node {
     stage('Test image') {
 
         app.withRun ('-p 8181:8080') {c ->
-            sh "mvn verify"
+            sh "mvn -Dtest=SeleniumIntegrationTest test"
         }
     }
 
