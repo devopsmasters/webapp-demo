@@ -19,7 +19,9 @@ node {
     stage('Test image') {
 
         app.withRun ('-p 8181:8080') {c ->
-            sh "mvn -Dtest=SeleniumIntegrationTest test"
+            wrap([$class: 'Xvfb', screen: '1440x900x24']) {
+		sh "mvn -Dtest=SeleniumIntegrationTest test"
+	    }
         }
     }
 
