@@ -1,15 +1,19 @@
 package de.codecentric.springbootsample;
 
+import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxBinary;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 public class SeleniumIntegrationFirefox {
- public static void main(String [] args) {
+	
+ @Test	
+ public void testq() throws IOException {
    FirefoxBinary firefoxBinary = new FirefoxBinary();
    firefoxBinary.addCommandLineOptions("--headless");
    System.setProperty("webdriver.gecko.driver", "geckodriver");
