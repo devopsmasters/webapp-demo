@@ -26,14 +26,14 @@ public class SeleniumIntegrationTest {
 	        options.addArguments("window-size=1200x600");
 
 	        WebDriver driver = new ChromeDriver(options);
-	        driver.get("http://localhost:8090/");
+	        driver.get("http://localhost:8181/");
 	        
 	        // a guarantee that the test was really executed
 	        //assertTrue(driver.findElement(By.id("q")).isDisplayed());
 	        System.out.println("check--" + driver.getCurrentUrl());
 	        //System.out.println(driver.getTitle());
 	        //assertEquals(driver.findElement(By.tagName("title")), "Spring Boot Sample App");
-	       String Expectedtitle = "http://localhost:8090/";
+	       String Expectedtitle = "http://localhost:8181/";
 	      //it will fetch the actual title
 	       
 	      String Actualtitle = driver.getCurrentUrl();
