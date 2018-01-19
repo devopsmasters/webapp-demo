@@ -21,7 +21,7 @@ public class SeleniumIntegrationFirefox {
    firefoxOptions.setBinary(firefoxBinary);
    FirefoxDriver driver = new FirefoxDriver(firefoxOptions);
    try {
-     driver.get("http://www.google.com");
+     driver.get("https://www.google.com");
      driver.manage().timeouts().implicitlyWait(4,
          TimeUnit.SECONDS);
      WebElement queryBox = driver.findElement(By.name("q"));
