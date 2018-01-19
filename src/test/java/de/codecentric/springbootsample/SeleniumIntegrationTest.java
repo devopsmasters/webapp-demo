@@ -19,18 +19,21 @@ public class SeleniumIntegrationTest {
 
 	        // Add options to Google Chrome. The window-size is important for responsive sites
 	        ChromeOptions options = new ChromeOptions();
+	       
+	        //options.addArguments("'headless', 'sudo'");
 	        options.addArguments("headless");
+	        options.addArguments("sudo");
 	        options.addArguments("window-size=1200x600");
 
 	        WebDriver driver = new ChromeDriver(options);
-	        driver.get("http://localhost:8181/");
+	        driver.get("http://localhost:8090/");
 	        
 	        // a guarantee that the test was really executed
 	        //assertTrue(driver.findElement(By.id("q")).isDisplayed());
 	        System.out.println("check--" + driver.getCurrentUrl());
 	        //System.out.println(driver.getTitle());
 	        //assertEquals(driver.findElement(By.tagName("title")), "Spring Boot Sample App");
-	       String Expectedtitle = "http://localhost:8181/";
+	       String Expectedtitle = "http://localhost:8090/";
 	      //it will fetch the actual title
 	       
 	      String Actualtitle = driver.getCurrentUrl();
