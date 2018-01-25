@@ -6,7 +6,7 @@ node {
 	task 'Checkout Source'
 	    checkout scm
 	
-	task 'Code Analysis'
+	task 'Static Code Analysis'
 	    sh "echo code analysis tool"
 	
 	task 'Unit Test'
@@ -15,12 +15,10 @@ node {
 	task 'Build Package'
 	    sh "mvn -Dmaven.test.skip=true clean package"
 	    
-	task 'Verify Unit Test Results'
-	    sh "echo verified"
-	    
-	task 'Upload to Artifactory'
+	task 'Upload package to Artifactory'
 	    sh "echo push to artifactory"
     }
+	
     stage('Integration') {
 	task 'Create Docker Image'
 	    app = docker.build("${repo_name}")
