@@ -39,7 +39,7 @@ node {
 	
 	task 'Run Integration'
             try {
-	      app.withRun ('-p 8181:8080', '--net=host') {c ->
+	      app.withRun ('-p 8181:8080 --net=host') {c ->
                 withMaven(maven: 'maven3')  {
 		  sh 'mvn -Dtest=SeleniumIntegration clean test -Dwebdriver.type=remote -Dwebdriver.url=http://localhost:4444/wd/hub -Dwebdriver.cap.browserName=chrome -Dmaven.test.failure.ignore=true'
 	        }
