@@ -19,12 +19,12 @@ public class SeleniumIntegration {
 	        
 	    	DesiredCapabilities caps = DesiredCapabilities.chrome();
 	        caps.setCapability("platform", "linux");
-	        caps.setCapability("version", "64.0.3282.119");
+	        //caps.setCapability("version", "64.0.3282.119");
 	        
 	        WebDriver driver = new RemoteWebDriver(caps);
 	    	
-	        //driver.get("http://localhost:8181/springdemo");
-	        driver.get("https://google.com");
+	        driver.get("http://localhost:8181/springdemo");
+	        //driver.get("https://google.com");
 	       
 	      String Actualtitle = driver.getTitle();
 	      System.out.println("Before Assetion " + Actualtitle);
