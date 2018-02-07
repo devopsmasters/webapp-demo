@@ -41,7 +41,7 @@ node {
             try {
 	      app.withRun ('-p 8181:8080') {c ->
                 withMaven(maven: 'maven3')  {
-		  sh "mvn -Dtest=SeleniumIntegration clean test -Dwebdriver.type=remote -Dwebdriver.url=http://localhost:4444/wd/hub -Dwebdriver.cap.browserName=chrome -Dmaven.test.failure.ignore=true'
+		  sh 'mvn -Dtest=SeleniumIntegration clean test -Dwebdriver.type=remote -Dwebdriver.url=http://localhost:4444/wd/hub -Dwebdriver.cap.browserName=chrome -Dmaven.test.failure.ignore=true'
 	        }
               }
             }
