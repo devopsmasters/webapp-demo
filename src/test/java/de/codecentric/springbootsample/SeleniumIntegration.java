@@ -23,8 +23,8 @@ public class SeleniumIntegration {
 	        
 	        WebDriver driver = new RemoteWebDriver(caps);
 	    	
-	        driver.get("http://localhost:8181/springdemo");
-	        
+	        //driver.get("http://localhost:8181/springdemo");
+	        driver.get("https://google.com");
 	       
 	      String Actualtitle = driver.getTitle();
 	      System.out.println("Before Assetion " + Actualtitle);
