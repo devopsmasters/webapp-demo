@@ -23,7 +23,7 @@ node {
     
     stage('Setup Selenium Grid') {
         sh 'docker pull elgalu/selenium && docker pull dosel/zalenium'
-        sh 'docker run --rm -d --name zalenium -p 4444:4444 \
+        sh 'docker run --rm -d --name zalenium -p 4444:4444 --net=host \
             -v /var/run/docker.sock:/var/run/docker.sock \
             -v /tmp/videos:/home/seluser/videos \
             --privileged dosel/zalenium start'
@@ -39,7 +39,7 @@ node {
 	
 	task 'Run Integration'
             try {
-	      app.withRun ('-p 8181:8080') {c ->
+	      app.withRun ('-p 8181:8080', '--net=host') {c ->
                 withMaven(maven: 'maven3')  {
 		  sh 'mvn -Dtest=SeleniumIntegration clean test -Dwebdriver.type=remote -Dwebdriver.url=http://localhost:4444/wd/hub -Dwebdriver.cap.browserName=chrome -Dmaven.test.failure.ignore=true'
 	        }
