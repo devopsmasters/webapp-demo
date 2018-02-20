@@ -5,38 +5,40 @@ node {
         /* Let's make sure we have the repository cloned to our workspace */
 	task 'Checkout Source'
 	    checkout scm
-	
+    }
+    stage('Code Analysis') {	
 	task 'Static Code Analysis'
 	    sh "echo code analysis tool"
-	
-	task 'Unit Test'
+    }
+    stage('Unit Testing') {
+	task 'Run Unit Test'
 	    sh "mvn -Dtest=HomeControllerUnitTest test"
-	
     } 
    stage('Build') {   
 	task 'Build Package'
 	    sh "mvn -Dmaven.test.skip=true clean package"
-	    
+   }
+   stage('Deploy artifact to repo') {	    
 	task 'Upload artifacts to Artifactory'
 	    sh "echo push to artifactory"
-    }
-    
+   }
+   stage('Create Docker Image') {
+    	task 'Create Docker Image'
+	    app = docker.build("${repo_name}")
+   }
+	
     stage('Setup Selenium Grid') {
         sh 'docker pull elgalu/selenium && docker pull dosel/zalenium'
         sh 'docker run --rm -d --name zalenium -p 4444:4444 \
             -v /var/run/docker.sock:/var/run/docker.sock \
             -v /tmp/videos:/home/seluser/videos \
             --privileged dosel/zalenium start'
-        
+        sh 'sleep 15'
         //sh 'curl -sSL http://localhost:4444/wd/hub/status | jq .value.ready | grep true'
     }
 	
-    stage('Integration') {
-
-	task 'Create Docker Image'
-	    app = docker.build("${repo_name}")
-	
-	task 'Run Integration'
+    stage('Functional Test') {
+	task 'Run Selenium Tests'
             try {
 	      app.withRun ('-p 8181:8080 --name sampleapp') {c ->
                 withMaven(maven: 'maven3')  {
@@ -49,8 +51,8 @@ node {
 		junit testResults: 'target/*.xml', allowEmptyResults: true
                 archiveArtifacts 'target/**'	
             }
-
-
+    }
+    stage('Deploy Container Image to Repository') {
 	
 	task 'Push Image to Docker Registry'
 	    docker.withRegistry('https://registry.hub.docker.com/', 'docker-hub-creds') {
@@ -58,17 +60,11 @@ node {
               app.push("latest")
         }
     }
-
-    stage('Performance') {
-	    
-        task 'Performance Testing'
-	    sh "echo Performance testing"    
-    }
+    stage('Deploy Application') {
 	
-    stage('UAT') {
-        
-	task 'UAT Testing'
-	    sh "echo UAT testing"
-	    
+	task 'Deploy application on an EC2 instance'
+	    sh "/usr/local/bin/terraform init"    
+	    sh "/usr/local/bin/terraform apply -var DOCKER_IMAGE=${repo_name} -auto-approve"
     }
+    
 }
