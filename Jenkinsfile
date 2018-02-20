@@ -63,8 +63,10 @@ node {
     stage('Deploy Application') {
 	
 	task 'Deploy application on an EC2 instance'
+	dir ('./terraform') {
 	    sh "/usr/local/bin/terraform init"    
 	    sh "/usr/local/bin/terraform apply -var DOCKER_IMAGE=${repo_name} -auto-approve"
+	}
     }
     
 }
