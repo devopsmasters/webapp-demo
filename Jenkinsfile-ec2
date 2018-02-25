@@ -34,7 +34,8 @@ node {
 	  dir ('./aws') {
 	    def status = sh(returnStatus: true, script: "aws cloudformation wait stack-exists --stack-name $stackname").trim()
 	    if ( $status == '0' ) {
-	      //sh "aws cloudformation update-stack "   
+	      //sh "aws cloudformation update-stack "  
+	    }  
 	    else {
 	      sh "aws cloudformation create-stack --stack-name $stackname \
 	          --template-body file://Tomcat-app-cfn.yaml \
