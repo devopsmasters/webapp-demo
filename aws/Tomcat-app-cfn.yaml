@@ -1,0 +1,237 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Creates an EC2 instance with springboot app deployed on tomcat'
+Metadata:
+  'AWS::CloudFormation::Interface':
+    ParameterGroups:
+    - Label:
+        default: 'EC2 Parameters'
+      Parameters:
+      - KeyName
+      - InstanceType
+      - EC2Subnets
+      - VPCId
+    - Label:
+        default: 'AppStack'
+      Parameters:
+      - AppStack
+      - StackSize
+      - DatabaseType
+      - AppURL
+Parameters:
+  
+  VPCId:
+    Description: 'VPC Id on which the stack will be created'
+    Type: AWS::EC2::VPC::Id
+    Default: 'vpc-f0882895'
+  EC2Subnets:
+    Description: Enter Subnet Id
+    Type: List<AWS::EC2::Subnet::Id>
+    Default: subnet-ab097ece
+  StackSize:
+    Description: 'Max number of instances to run'
+    Type: Number
+    Default: 1
+  KeyName:
+    Description: 'key pair of the ec2-user to establish a SSH connection to the instances.'
+    Type: AWS::EC2::KeyPair::KeyName
+    Default: ''
+  InstanceType:
+    Description: 'EC2 instance type.'
+    Type: String
+    Default: 't2.micro' 
+  DatabaseType:
+    Description: 'RDS Database type'
+    Type: String
+    Default: 'MySQL'
+  AppURL:
+    Description: 'App WAR artifactory URL'
+    Type: String
+    Default: ''
+
+Mappings:
+  RegionMap:
+    'us-east-1':
+      AMI: 'ami-97785bed'
+    'us-east-2':
+      AMI: 'ami-f63b1193'
+    'us-west-1':
+      AMI: 'ami-824c4ee2'
+    'us-west-2':
+      AMI: 'ami-f2d3638a'
+Resources:
+  ELBSG:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: 'app-elb-sg'
+      VpcId: 
+        !Ref VPCId
+      SecurityGroupIngress:
+      - CidrIp: '0.0.0.0/0'
+        FromPort: 80
+        ToPort: 80
+        IpProtocol: tcp
+  ELB:
+    Type: 'AWS::ElasticLoadBalancingV2::LoadBalancer'
+    Properties:
+      Scheme: 'internet-facing'
+      Subnets: !Ref EC2Subnets
+      SecurityGroups:
+        - !Ref ELBSG
+      Tags:
+      - Key: Name
+        Value: 'app-elb'
+  ELBTargetGroup1:
+    Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
+    Properties:
+      HealthCheckIntervalSeconds: 30
+      HealthCheckPath: "/springdemo/"
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 20
+      HealthyThresholdCount: 5
+      UnhealthyThresholdCount: 6
+      #Matcher:
+      #  HttpCode: '200'
+      Port: 8080
+      Protocol: HTTP
+      Tags:
+      - Key: Name
+        Value: 'app-elb-tg'
+      VpcId: !Ref VPCId
+      TargetGroupAttributes:
+      - Key: 'deregistration_delay.timeout_seconds'
+        Value: 300
+  ELBListener1:
+    Type: 'AWS::ElasticLoadBalancingV2::Listener'
+    Properties:
+      DefaultActions:
+      - TargetGroupArn: !Ref ELBTargetGroup1
+        Type: forward
+      LoadBalancerArn: !Ref ELB
+      Port: 80
+      Protocol: HTTP
+  AppSG:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: 'app-sg'
+      VpcId: !Ref VPCId
+      SecurityGroupIngress:
+      - SourceSecurityGroupId: !Ref ELBSG
+        FromPort: 8080
+        ToPort: 8080
+        IpProtocol: tcp
+  LaunchConfig:
+    Type: 'AWS::AutoScaling::LaunchConfiguration'
+    Metadata:
+      'AWS::CloudFormation::Init':
+        configSets:
+          default: [install]
+        install:
+          packages:
+            yum:
+              git: []
+              
+          files:
+            /etc/profile.d/appinputs.sh:
+              content: !Sub |
+                DBURL=${DBInstance.Endpoint.Address}:${DBInstance.Endpoint.Port}
+          commands:
+            a_download_tomcat:
+              command: wget http://www-eu.apache.org/dist/tomcat/tomcat-8/v8.5.28/bin/apache-tomcat-8.5.28.tar.gz -O /tmp/tomcat8.tar.gz
+            b_install_tomcat:
+              command: mkdir tomcat8 && tar -xf /tmp/tomcat8.tar.gz --strip-components=1 -C tomcat8
+              cwd: /opt
+            c_download_app:
+              command: !Sub 'wget ${AppURL} -O webapps/springdemo.war'
+              cwd: /opt/tomcat8
+            d_start_tomcat:
+              command: sh startup.sh
+              cwd: /opt/tomcat8/bin
+    Properties:
+      ImageId: !FindInMap [RegionMap, !Ref 'AWS::Region', AMI]
+      InstanceType: !Ref InstanceType
+      SecurityGroups:
+      - !Ref AppSG
+      KeyName: !Ref KeyName
+      UserData:
+        'Fn::Base64': !Sub |
+          #!/bin/bash -x
+
+          #remove java 7
+          yum remove java -y
+
+          #install java 8
+          curl -L -b "oraclelicense=a" http://download.oracle.com/otn-pub/java/jdk/8u161-b12/2f38c3b165be4555a1fa6e98c45e0808/jdk-8u161-linux-x64.rpm -o /tmp/java8.rpm
+          yum install /tmp/java8.rpm -y
+          
+          /opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource LaunchConfig --region ${AWS::Region}
+          
+          /opt/aws/bin/cfn-signal -e  $? --stack ${AWS::StackName} --resource ASG --region ${AWS::Region}
+  ASG:
+    Type: 'AWS::AutoScaling::AutoScalingGroup'
+    Properties:
+      LaunchConfigurationName: !Ref LaunchConfig
+      MinSize: !Ref StackSize
+      MaxSize: !Ref StackSize
+      DesiredCapacity: !Ref StackSize
+      HealthCheckGracePeriod: 900
+      HealthCheckType: ELB
+      VPCZoneIdentifier: !Ref EC2Subnets
+      TargetGroupARNs:
+        - !Ref ELBTargetGroup1
+      Tags:
+      - Key: Name
+        Value: 'app-tomcat'
+        PropagateAtLaunch: true
+    CreationPolicy:
+      ResourceSignal:
+        Timeout: PT15M
+    UpdatePolicy:
+      AutoScalingRollingUpdate:
+        PauseTime: PT15M
+        SuspendProcesses:
+        - HealthCheck
+        - ReplaceUnhealthy
+        - AZRebalance
+        - AlarmNotification
+        - ScheduledActions
+        WaitOnResourceSignals: true
+  DBEC2SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Open database for access
+      VpcId: !Ref VPCId
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: '3306'
+        ToPort: '3306'
+        SourceSecurityGroupId: !Ref AppSG
+  DBInstance:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBName: sampledb
+      Engine: !Ref DatabaseType
+      MultiAZ: false
+      MasterUsername: dbadmin
+      DBInstanceClass: db.m1.small
+      AllocatedStorage: '5'
+      MasterUserPassword: MyPassword1
+      DBSubnetGroupName: !Ref RDSSubnetGroup
+      VPCSecurityGroups:
+      - !GetAtt DBEC2SecurityGroup.GroupId
+      Tags:
+      - Key: Name
+        Value: 'rds-tomcat'
+      
+  RDSSubnetGroup:  
+    Type: "AWS::RDS::DBSubnetGroup"
+    Properties: 
+      DBSubnetGroupDescription: DB Subnet group for RDS
+      SubnetIds: !Ref EC2Subnets 
+
+Outputs:
+  ApplicationURL:
+    Description: Tomcat Sample App URL
+    Value: !Sub 'http://${ELB.DNSName}/springdemo'
+  
+  
