@@ -1,6 +1,8 @@
 node {
-    def app
-    def server = Artifactory.server('local-artifactory')
+    def server
+    def buildInfo
+    def rtMaven
+
     
     stage('Checkout') {
         /* Let's make sure we have the repository cloned to our workspace */
