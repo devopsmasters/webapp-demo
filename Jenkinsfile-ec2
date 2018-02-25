@@ -2,7 +2,7 @@ node {
     def app
     def server = Artifactory.server('local-artifactory')
     
-    stage('Development') {
+    stage('Checkout') {
         /* Let's make sure we have the repository cloned to our workspace */
 	    task 'Checkout Source'
 	    checkout scm
@@ -11,25 +11,37 @@ node {
 	    task 'Static Code Analysis'
 	    sh "echo code analysis tool"
     }
-    stage('Unit Testing') {
-	    task 'Run Unit Test'
-	    sh "mvn -Dtest=HomeControllerUnitTest test"
-    } 
-   stage('Build') {   
-	    task 'Build Package'
-	    sh "mvn -Dmaven.test.skip=true clean package"
-   }
-   stage('Deploy artifact to repo') {	    
-	    task 'Upload artifacts to Artifactory'
-	    withMaven(maven: 'maven3')  {
-      	      def rtMaven = Artifactory.newMavenBuild()
-      	      //rtMaven.resolver server: server, releaseRepo: 'libs-release', snapshotRepo: 'libs-snapshot'
-              rtMaven.deployer server: server, releaseRepo: 'maven-release-local', snapshotRepo: 'maven-snapshot-local'
-              def buildInfo = rtMaven.run pom: 'pom.xml', goals: 'clean install'
-              server.publishBuildInfo buildInfo
-	    }
-   }
-  
+    stage ('Artifactory configuration') {
+        // Obtain an Artifactory server instance, defined in Jenkins --> Manage:
+        server = Artifactory.server 'local-artifactory'
+
+        rtMaven = Artifactory.newMavenBuild()
+        rtMaven.tool = 'maven3' // Tool name from Jenkins configuration
+        rtMaven.deployer releaseRepo: 'libs-release-local', snapshotRepo: 'libs-snapshot-local', server: server
+        rtMaven.resolver releaseRepo: 'libs-release-local', snapshotRepo: 'libs-snapshot-local', server: server
+        rtMaven.deployer.deployArtifacts = false // Disable artifacts deployment during Maven run
+
+        buildInfo = Artifactory.newBuildInfo()
+    }
+    stage ('Test') {
+    	task 'Run Unit Test'
+        rtMaven.run pom: 'pom.xml', goals: 'clean test'
+    }
+    stage ('Install') {
+   	task 'Run Maven Install'
+        rtMaven.run pom: 'pom.xml', goals: 'install', buildInfo: buildInfo
+    }
+ 
+    stage ('Deploy') {
+    	task 'Maven deploy artifacts'
+        rtMaven.deployer.deployArtifacts buildInfo
+    }
+        
+    stage ('Publish build info') {
+    	task 'Publish BuildInfo to artifactory'
+        server.publishBuildInfo buildInfo
+    }
+   
   stage('Deploy Application') {
 	  def stackname = 'sample-tomcat-app'
 	  task 'Deploy application on an EC2 instance'
