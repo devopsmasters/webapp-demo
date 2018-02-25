@@ -1,0 +1,40 @@
+node {
+    def app
+    def server = Artifactory.server('local-artifactory')
+    
+    stage('Development') {
+        /* Let's make sure we have the repository cloned to our workspace */
+	    task 'Checkout Source'
+	    checkout scm
+    }
+    stage('Code Analysis') {	
+	    task 'Static Code Analysis'
+	    sh "echo code analysis tool"
+    }
+    stage('Unit Testing') {
+	    task 'Run Unit Test'
+	    sh "mvn -Dtest=HomeControllerUnitTest test"
+    } 
+   stage('Build') {   
+	    task 'Build Package'
+	    sh "mvn -Dmaven.test.skip=true clean package"
+   }
+   stage('Deploy artifact to repo') {	    
+	    task 'Upload artifacts to Artifactory'
+      def rtMaven = Artifactory.newMavenBuild()
+      rtMaven.resolver server: server, releaseRepo: 'libs-release', snapshotRepo: 'libs-snapshot'
+      rtMaven.deployer server: server, releaseRepo: 'maven-release-local', snapshotRepo: 'maven-snapshot-local'
+      def buildInfo = rtMaven.run pom: 'pom.xml', goals: 'clean install'
+      server.publishBuildInfo buildInfo
+   }
+  
+  stage('Deploy Application') {
+	
+	  task 'Deploy application on an EC2 instance'
+	  dir ('./aws') {
+	    sh "aws cloudformation create-stack init"    
+	    sh "/usr/local/bin/terraform apply -var DOCKER_IMAGE=${repo_name} -auto-approve"
+	  }
+  }
+    
+}
