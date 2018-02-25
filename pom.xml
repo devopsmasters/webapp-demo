@@ -202,7 +202,7 @@
     </profile>
   </profiles>
 
-  <repositories>
+  <!--<repositories>
     <repository>
       <id>spring-milestone</id>
       <url>https://repo.spring.io/libs-release</url>
@@ -214,6 +214,6 @@
       <id>spring-milestone</id>
       <url>https://repo.spring.io/libs-release</url>
     </pluginRepository>
-  </pluginRepositories>
+  </pluginRepositories>-->
 
 </project>
