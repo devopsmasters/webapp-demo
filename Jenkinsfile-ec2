@@ -37,6 +37,7 @@ node {
     	task 'Maven deploy artifacts'
 	def retuntext = rtMaven.deployer.deployArtifacts buildInfo
 	echo "$retuntext"
+	echo rtMaven.deployer.TargetRepository
     }
         
     stage ('Publish build info') {
