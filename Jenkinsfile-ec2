@@ -5,7 +5,7 @@ node {
 
     def appurl
     def interface1
-    def subnet-id1
+    def subnetid
     def vpcid
     def region
     def status
@@ -56,7 +56,7 @@ node {
 	  appurl = "$server.url/artifactory/maven-snapshot-local/de/codecentric/springboot-sample-app/0.0.1-SNAPSHOT/springboot-sample-app-0.0.1-20180225.192937-1.war"
           stackname = 'sample-tomcat-app'
 	  interface1 = sh(returnStdout: true, script: 'curl --silent http://169.254.169.254/latest/meta-data/network/interfaces/macs/')
-	  subnet-id1 = sh(returnStdout: true, script: "curl --silent http://169.254.169.254/latest/meta-data/network/interfaces/macs/$interface1/subnet-id")
+	  subnetid = sh(returnStdout: true, script: "curl --silent http://169.254.169.254/latest/meta-data/network/interfaces/macs/$interface1/subnet-id")
           vpcid = sh(returnStdout: true, script: "curl --silent http://169.254.169.254/latest/meta-data/network/interfaces/macs/$interface1/vpc-id")
 	  region = sh(returnStdout: true, script: 'curl --silent http://169.254.169.254/latest/dynamic/instance-identity/document | jq -r .region')
 	  status = sh(returnStatus: true, script: "aws cloudformation wait stack-exists --stack-name $stackname --region $region")
