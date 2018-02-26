@@ -3,6 +3,14 @@ node {
     def buildInfo
     def rtMaven
 
+    def appurl
+    def interface1
+    def subnet-id1
+    def vpcid
+    def region
+    def status
+    def stackname
+    
     stage('Checkout') {
         /* Let's make sure we have the repository cloned to our workspace */
 	    task 'Checkout Source'
