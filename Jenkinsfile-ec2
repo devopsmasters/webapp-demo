@@ -61,6 +61,7 @@ node {
 	  region = sh(returnStdout: true, script: 'curl --silent http://169.254.169.254/latest/dynamic/instance-identity/document | jq -r .region')
 	  //status = sh(returnStatus: true, script: "aws cloudformation wait stack-exists --stack-name $stackname --region $region")
 	  
+	  echo "$interface1-$subnetid-$vpcid-$region-$appurl"
 	  task 'Deploy application on an EC2 instance'
 	  dir ('./aws') {
 	    
