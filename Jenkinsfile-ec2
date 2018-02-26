@@ -46,18 +46,26 @@ node {
    
   stage('Deploy Application') {
 	  def stackname = 'sample-tomcat-app'
+	  def region
+	  def status
+	  def vpcid
+	  def subnets
+	  def interface = sh(returnStdout: true, script: 'curl --silent http://169.254.169.254/latest/meta-data/network/interfaces/macs/')
+	  subnet-id = sh(returnStdout: true, script: "curl --silent http://169.254.169.254/latest/meta-data/network/interfaces/macs/$interface/subnet-id")
+          vpcid = sh(returnStdout: true, script: "curl --silent http://169.254.169.254/latest/meta-data/network/interfaces/macs/$interface/vpc-id")
+	  
 	  task 'Deploy application on an EC2 instance'
 	  dir ('./aws') {
-	    def region = sh(returnStdout: true, script: 'curl --silent http://169.254.169.254/latest/dynamic/instance-identity/document | jq -r .region').trim()
-	    def status = sh(returnStatus: true, script: "aws cloudformation wait stack-exists --stack-name $stackname --region $region").trim()
-	    if ( $status == '0' ) {
+	    region = sh(returnStdout: true, script: 'curl --silent http://169.254.169.254/latest/dynamic/instance-identity/document | jq -r .region')
+	    status = sh(returnStatus: true, script: "aws cloudformation wait stack-exists --stack-name $stackname --region $region")
+          if ( $status == '0' ) {
 	      //sh "aws cloudformation update-stack "  
 	    }  
 	    else {
 	      sh "aws cloudformation create-stack --stack-name $stackname --region $region\
 	          --template-body file://Tomcat-app-cfn.yaml \
 		  --parameters ParameterKey=KeyPairName,ParameterValue=MyKey ParameterKey=EC2Subnets,ParameterValue= \
-		               ParameterKey=AppURL,ParameterValue=$url ParameterKey=VPCId,ParameterValue=vpc"
+		               ParameterKey=AppURL,ParameterValue=$url ParameterKey=VPCId,ParameterValue=$vpcid"
 	    }
 	  }
   }
