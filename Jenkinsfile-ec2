@@ -47,9 +47,9 @@ node {
   	  
 	  def appurl = "$server.url/artifactory/maven-snapshot-local/de/codecentric/springboot-sample-app/0.0.1-SNAPSHOT/springboot-sample-app-0.0.1-20180225.192937-1.war"
           def stackname = 'sample-tomcat-app'
-	  def interface = sh(returnStdout: true, script: 'curl --silent http://169.254.169.254/latest/meta-data/network/interfaces/macs/')
-	  def subnet-id = sh(returnStdout: true, script: "curl --silent http://169.254.169.254/latest/meta-data/network/interfaces/macs/$interface/subnet-id")
-          def vpcid = sh(returnStdout: true, script: "curl --silent http://169.254.169.254/latest/meta-data/network/interfaces/macs/$interface/vpc-id")
+	  def interface1 = sh(returnStdout: true, script: 'curl --silent http://169.254.169.254/latest/meta-data/network/interfaces/macs/')
+	  def subnet-id = sh(returnStdout: true, script: "curl --silent http://169.254.169.254/latest/meta-data/network/interfaces/macs/$interface1/subnet-id")
+          def vpcid = sh(returnStdout: true, script: "curl --silent http://169.254.169.254/latest/meta-data/network/interfaces/macs/$interface1/vpc-id")
 	  def region = sh(returnStdout: true, script: 'curl --silent http://169.254.169.254/latest/dynamic/instance-identity/document | jq -r .region')
 	  def status = sh(returnStatus: true, script: "aws cloudformation wait stack-exists --stack-name $stackname --region $region")
 	  
