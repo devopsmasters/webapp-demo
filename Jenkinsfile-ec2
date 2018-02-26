@@ -65,7 +65,7 @@ node {
 	  dir ('./aws') {
 	    
             
-	      sh "/opt/node/bin/cfn-create-or-update --stack-name $stackname --region $region \
+	      sh "sudo /opt/node/bin/cfn-create-or-update --stack-name $stackname --region $region \
 	          --template-body file://aws/Tomcat-app-cfn.yaml \
 		  --parameters ParameterKey=KeyPairName,ParameterValue=rg-newkey ParameterKey=EC2Subnets,ParameterValue=$subnetid \
 		               ParameterKey=AppURL,ParameterValue=$appurl ParameterKey=VPCId,ParameterValue=$vpcid"
