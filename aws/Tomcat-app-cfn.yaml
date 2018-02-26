@@ -75,7 +75,6 @@ Resources:
     Type: 'AWS::ElasticLoadBalancingV2::LoadBalancer'
     Properties:
       Scheme: 'internet-facing'
-      Type: 'network'
       Subnets: !Ref EC2Subnets
       SecurityGroups:
         - !Ref ELBSG
@@ -86,16 +85,16 @@ Resources:
     Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
     Properties:
       HealthCheckIntervalSeconds: 30
-      #HealthCheckPath: "/springdemo/"
+      HealthCheckPath: "/springdemo/"
       HealthCheckPort: 8080
-      HealthCheckProtocol: TCP
-      #HealthCheckTimeoutSeconds: 20
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 20
       HealthyThresholdCount: 5
       UnhealthyThresholdCount: 6
-      #Matcher:
-      #  HttpCode: '200'
+      Matcher:
+        HttpCode: '200'
       Port: 8080
-      Protocol: TCP
+      Protocol: HTTP
       Tags:
       - Key: Name
         Value: 'app-elb-tg'
@@ -111,7 +110,7 @@ Resources:
         Type: forward
       LoadBalancerArn: !Ref ELB
       Port: 80
-      Protocol: TCP
+      Protocol: HTTP
   AppSG:
     Type: 'AWS::EC2::SecurityGroup'
     Properties:
