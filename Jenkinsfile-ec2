@@ -36,8 +36,8 @@ node {
     stage ('Deploy') {
     	task 'Maven deploy artifacts'
 	def pathtext
-        rtMaven.deployer.deployArtifacts buildInfo > $pathtext
-	echo "$pathtext"
+        rtMaven.deployer.deployArtifacts buildInfo
+	echo buildInfo.deployableArtifacts.count
     }
         
     stage ('Publish build info') {
