@@ -3,7 +3,6 @@ node {
     def buildInfo
     def rtMaven
 
-    
     stage('Checkout') {
         /* Let's make sure we have the repository cloned to our workspace */
 	    task 'Checkout Source'
@@ -64,9 +63,9 @@ node {
 	    }  
 	    else {
 	      sh "aws cloudformation create-stack --stack-name $stackname --region $region \
-	          --template-body file://Tomcat-app-cfn.yaml \
+	          --template-body file://aws/Tomcat-app-cfn.yaml \
 		  --parameters ParameterKey=KeyPairName,ParameterValue=rg-newkey ParameterKey=EC2Subnets,ParameterValue=$subnet-id \
-		               ParameterKey=AppURL,ParameterValue=$url ParameterKey=VPCId,ParameterValue=$vpcid"
+		               ParameterKey=AppURL,ParameterValue=$appurl ParameterKey=VPCId,ParameterValue=$vpcid"
 	    }
 	  }
   }
