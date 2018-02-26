@@ -35,10 +35,9 @@ node {
  
     stage ('Deploy') {
     	task 'Maven deploy artifacts'
-	def pathtext
-        rtMaven.deployer.deployArtifacts buildInfo
+	rtMaven.deployer.deployArtifacts buildInfo
 	echo server.url
-	echo buildInfo.targetRepo
+	echo buildInfo.repositoryPath
     }
         
     stage ('Publish build info') {
