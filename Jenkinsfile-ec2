@@ -37,7 +37,7 @@ node {
     	task 'Maven deploy artifacts'
 	rtMaven.deployer.deployArtifacts buildInfo
 	echo server.url
-	echo buildInfo.repositoryPath
+	echo buildInfo.deployableArtifacts.artifactPath
     }
         
     stage ('Publish build info') {
