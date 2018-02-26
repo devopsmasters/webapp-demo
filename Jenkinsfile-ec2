@@ -53,19 +53,19 @@ node {
    
   stage('Deploy Application') {
   	  
-	  appurl = "$server.url/artifactory/maven-snapshot-local/de/codecentric/springboot-sample-app/0.0.1-SNAPSHOT/springboot-sample-app-0.0.1-20180225.192937-1.war"
+	  appurl = "$server.url/maven-snapshot-local/de/codecentric/springboot-sample-app/0.0.1-SNAPSHOT/springboot-sample-app-0.0.1-20180225.192937-1.war"
           stackname = 'sample-tomcat-app'
 	  interface1 = sh(returnStdout: true, script: 'curl --silent http://169.254.169.254/latest/meta-data/network/interfaces/macs/')
 	  subnetid = sh(returnStdout: true, script: "curl --silent http://169.254.169.254/latest/meta-data/network/interfaces/macs/$interface1/subnet-id")
           vpcid = sh(returnStdout: true, script: "curl --silent http://169.254.169.254/latest/meta-data/network/interfaces/macs/$interface1/vpc-id")
-	  region = sh(returnStdout: true, script: 'curl --silent http://169.254.169.254/latest/dynamic/instance-identity/document | jq -r .region')
+	  region1 = sh(returnStdout: true, script: 'curl --silent http://169.254.169.254/latest/dynamic/instance-identity/document | jq -r .region')
 	  //status = sh(returnStatus: true, script: "aws cloudformation wait stack-exists --stack-name $stackname --region $region")
 	  
 	  echo "$interface1-$subnetid-$vpcid-$region-$appurl"
 	  task 'Deploy application on an EC2 instance'
 	  dir ('./aws') {
 	    
-	      sh "sudo /usr/bin/cfn-create-or-update --stack-name $stackname --region $region --template-body file://Tomcat-app-cfn.yaml --parameters ParameterKey=KeyPairName,ParameterValue=rg-newkey ParameterKey=EC2Subnets,ParameterValue=$subnetid  ParameterKey=AppURL,ParameterValue=$appurl ParameterKey=VPCId,ParameterValue=$vpcid"
+	      sh "sudo /usr/bin/cfn-create-or-update --stack-name $stackname --template-body file://Tomcat-app-cfn.yaml --parameters ParameterKey=KeyPairName,ParameterValue=rg-newkey ParameterKey=EC2Subnets,ParameterValue=$subnetid  ParameterKey=AppURL,ParameterValue=$appurl ParameterKey=VPCId,ParameterValue=$vpcid --region $region1"
 	    
 	  }
   }
