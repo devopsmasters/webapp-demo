@@ -38,6 +38,7 @@ node {
 	def pathtext
         rtMaven.deployer.deployArtifacts buildInfo
 	echo server.url
+	echo buildInfo.targetRepo
     }
         
     stage ('Publish build info') {
