@@ -35,7 +35,7 @@ node {
  
     stage ('Deploy') {
     	task 'Maven deploy artifacts'
-	def data1 = (rtMaven.deployer.deployArtifacts buildInfo)
+	def data1 = sh(returnStdout: true, script: 'rtMaven.deployer.deployArtifacts buildInfo')
 	echo "$data1"
     }
         
