@@ -18,7 +18,7 @@ node {
 
         rtMaven = Artifactory.newMavenBuild()
         rtMaven.tool = 'maven3' // Tool name from Jenkins configuration
-        rtMaven.deployer releaseRepo: 'libs-release-local', snapshotRepo: 'libs-snapshot-local', server: server
+        rtMaven.deployer releaseRepo: 'maven-release-local', snapshotRepo: 'maven-snapshot-local', server: server
         //rtMaven.resolver releaseRepo: 'libs-release-local', snapshotRepo: 'libs-snapshot-local', server: server
         rtMaven.deployer.deployArtifacts = false // Disable artifacts deployment during Maven run
 
@@ -35,7 +35,8 @@ node {
  
     stage ('Deploy') {
     	task 'Maven deploy artifacts'
-	//rtMaven.deployer.deployArtifacts buildInfo
+	def data1 = (rtMaven.deployer.deployArtifacts buildInfo)
+	echo "$data1"
     }
         
     stage ('Publish build info') {
@@ -44,7 +45,8 @@ node {
     }
   /* 
   stage('Deploy Application') {
-	  def stackname = 'sample-tomcat-app'
+  
+          def stackname = 'sample-tomcat-app'
 	  def region
 	  def status
 	  def vpcid
