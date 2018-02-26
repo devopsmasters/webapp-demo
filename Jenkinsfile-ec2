@@ -36,13 +36,14 @@ node {
     stage ('Deploy') {
     	task 'Maven deploy artifacts'
         rtMaven.deployer.deployArtifacts buildInfo
+	echo buildInfo.deployArtifacts
     }
         
     stage ('Publish build info') {
     	task 'Publish BuildInfo to artifactory'
         server.publishBuildInfo buildInfo
     }
-   
+  /* 
   stage('Deploy Application') {
 	  def stackname = 'sample-tomcat-app'
 	  def region
@@ -68,6 +69,6 @@ node {
 		               ParameterKey=AppURL,ParameterValue=$appurl ParameterKey=VPCId,ParameterValue=$vpcid"
 	    }
 	  }
-  }
+  }*/
     
 }
