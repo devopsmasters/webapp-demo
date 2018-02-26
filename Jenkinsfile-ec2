@@ -37,7 +37,7 @@ node {
     	task 'Maven deploy artifacts'
 	def pathtext
         rtMaven.deployer.deployArtifacts buildInfo
-	echo buildInfo.deployableArtifacts.count
+	echo server.url
     }
         
     stage ('Publish build info') {
