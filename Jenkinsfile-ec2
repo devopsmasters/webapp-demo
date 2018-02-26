@@ -43,9 +43,10 @@ node {
     	task 'Publish BuildInfo to artifactory'
         server.publishBuildInfo buildInfo
     }
-  /* 
+   
   stage('Deploy Application') {
-  
+  	  
+	  def appurl = server.url + '/artifactory/maven-snapshot-local/de/codecentric/springboot-sample-app/0.0.1-SNAPSHOT/springboot-sample-app-0.0.1-20180225.192937-1.war'
           def stackname = 'sample-tomcat-app'
 	  def region
 	  def status
@@ -70,6 +71,6 @@ node {
 		               ParameterKey=AppURL,ParameterValue=$appurl ParameterKey=VPCId,ParameterValue=$vpcid"
 	    }
 	  }
-  }*/
+  }
     
 }
