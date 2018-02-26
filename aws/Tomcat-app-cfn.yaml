@@ -23,11 +23,11 @@ Parameters:
   VPCId:
     Description: 'VPC Id on which the stack will be created'
     Type: AWS::EC2::VPC::Id
-    Default: 'vpc-f0882895'
+    Default: 'vpc-74ce420c'
   EC2Subnets:
     Description: Enter Subnet Id
     Type: List<AWS::EC2::Subnet::Id>
-    Default: subnet-ab097ece
+    Default: subnet-3c414130
   StackSize:
     Description: 'Max number of instances to run'
     Type: Number
@@ -75,6 +75,7 @@ Resources:
     Type: 'AWS::ElasticLoadBalancingV2::LoadBalancer'
     Properties:
       Scheme: 'internet-facing'
+      Type: 'network'
       Subnets: !Ref EC2Subnets
       SecurityGroups:
         - !Ref ELBSG
@@ -85,15 +86,16 @@ Resources:
     Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
     Properties:
       HealthCheckIntervalSeconds: 30
-      HealthCheckPath: "/springdemo/"
-      HealthCheckProtocol: HTTP
-      HealthCheckTimeoutSeconds: 20
+      #HealthCheckPath: "/springdemo/"
+      HealthCheckPort: 8080
+      HealthCheckProtocol: TCP
+      #HealthCheckTimeoutSeconds: 20
       HealthyThresholdCount: 5
       UnhealthyThresholdCount: 6
       #Matcher:
       #  HttpCode: '200'
       Port: 8080
-      Protocol: HTTP
+      Protocol: TCP
       Tags:
       - Key: Name
         Value: 'app-elb-tg'
@@ -109,7 +111,7 @@ Resources:
         Type: forward
       LoadBalancerArn: !Ref ELB
       Port: 80
-      Protocol: HTTP
+      Protocol: TCP
   AppSG:
     Type: 'AWS::EC2::SecurityGroup'
     Properties:
@@ -233,5 +235,4 @@ Outputs:
   ApplicationURL:
     Description: Tomcat Sample App URL
     Value: !Sub 'http://${ELB.DNSName}/springdemo'
-  
   
