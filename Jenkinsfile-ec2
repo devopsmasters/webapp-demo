@@ -32,10 +32,10 @@ node {
 
         buildInfo = Artifactory.newBuildInfo()
     }
-    stage ('Test') {
+    /*stage ('Test') {
     	task 'Run Unit Test'
         rtMaven.run pom: 'pom.xml', goals: 'clean test'
-    }
+    }*/
     stage ('Install') {
    	task 'Run Maven Install'
         rtMaven.run pom: 'pom.xml', goals: 'install', buildInfo: buildInfo
