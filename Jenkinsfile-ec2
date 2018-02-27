@@ -53,7 +53,7 @@ node {
    
   stage('Deploy Application') {
   	  
-	  appurl = "$server.url/maven-snapshot-local/de/codecentric/springboot-sample-app/0.0.1-SNAPSHOT/springboot-sample-app-0.0.1-20180225.192937-1.war"
+	  appurl = "$server.url/maven-snapshot-local/de/codecentric/springboot-sample-app/0.0.1-SNAPSHOT/springboot-sample-app-0.0.1.war"
           stackname = 'sample-tomcat-app'
 	  interface1 = sh(returnStdout: true, script: 'curl --silent http://169.254.169.254/latest/meta-data/network/interfaces/macs/')
 	  vpcid = sh(returnStdout: true, script: "curl --silent http://169.254.169.254/latest/meta-data/network/interfaces/macs/$interface1/vpc-id")
