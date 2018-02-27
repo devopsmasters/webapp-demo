@@ -59,7 +59,7 @@ node {
 	  vpcid = sh(returnStdout: true, script: "curl --silent http://169.254.169.254/latest/meta-data/network/interfaces/macs/$interface1/vpc-id")
 	  region1 = sh(returnStdout: true, script: 'curl --silent http://169.254.169.254/latest/dynamic/instance-identity/document | jq -r .region')
 	  subnetids = sh(returnStdout: true, script: "aws ec2 describe-subnets --filters \"Name=availabilityZone,Values=us-east-1b,us-east-1c\" --query \"Subnets[?VpcId=='$vpcid'].SubnetId\" --region $region1")
-          echo "$subnetids"
+          echo "$subnetids.join(", ")"
 	  task 'Deploy application on an EC2 instance'
 	  dir ('./aws') {
 	    
