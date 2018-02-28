@@ -58,12 +58,12 @@ node {
 	  interface1 = sh(returnStdout: true, script: 'curl --silent http://169.254.169.254/latest/meta-data/network/interfaces/macs/')
 	  vpcid = sh(returnStdout: true, script: "curl --silent http://169.254.169.254/latest/meta-data/network/interfaces/macs/$interface1/vpc-id")
 	  region1 = sh(returnStdout: true, script: 'curl --silent http://169.254.169.254/latest/dynamic/instance-identity/document | jq -r .region').trim()
-	  subnetids = sh(returnStdout: true, script: "aws ec2 describe-subnets --filters 'Name=availabilityZone,Values=us-east-1b,us-east-1c' --query \"Subnets[?VpcId==\'$vpcid\'].SubnetId\" --region $region1 | jq -r 'join(\",\")' ").trim()
+	  subnetids = sh(returnStdout: true, script: "aws ec2 describe-subnets --filters \"Name=availabilityZone,Values=$region1b,$region1c\" --query \"Subnets[?VpcId==\'$vpcid\'].SubnetId\" --region $region1 | jq -r 'join(\",\")' ").trim()
           echo "$subnetids"
 	  task 'Deploy application on an EC2 instance'
 	  dir ('./aws') {
 	    
-	     // sh "sudo /usr/bin/cfn-create-or-update --stack-name $stackname --template-body file://Tomcat-app-cfn.yaml --parameters ParameterKey=KeyName,ParameterValue=rg-newkey ParameterKey=EC2Subnets,ParameterValue=\\\"\[$subnetids\]\\\" ParameterKey=AppURL,ParameterValue='$appurl' ParameterKey=VPCId,ParameterValue=$vpcid --region $region1"
+	     sh "sudo /usr/bin/cfn-create-or-update --stack-name $stackname --region $region1 --template-body file://Tomcat-app-cfn.yaml --parameters \"ParameterKey=KeyName,ParameterValue=rg-newkey\" \"ParameterKey=AppURL,ParameterValue=$appurl\" \"ParameterKey=VPCId,ParameterValue=$vpcid\" \"ParameterKey=EC2Subnets,ParameterValue=$subnetids\" "
 	    
 	  }
   }
