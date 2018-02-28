@@ -11,17 +11,17 @@ node {
     def status
     def stackname
     
-    stage('Checkout') {
-        /* Let's make sure we have the repository cloned to our workspace */
-	    task 'Checkout Source'
-	    checkout scm
+    stage ('Checkout') {
+        task 'Checkout Source Code'
+	checkout scm
     }
-    stage('Code Analysis') {	
-	    task 'Static Code Analysis'
-	    sh "echo code analysis tool"
+    stage ('Code Analysis') {	
+	task 'Static Code Analysis'
+	sh "echo code analysis tool"
     }
-    stage ('Artifactory configuration') {
-        // Obtain an Artifactory server instance, defined in Jenkins --> Manage:
+    stage ('Run Unit Test and Build Code') {
+        task 'Get artifactory repo details'
+	// Obtain an Artifactory server instance, defined in Jenkins --> Manage:
         server = Artifactory.server 'local-artifactory'
 
         rtMaven = Artifactory.newMavenBuild()
@@ -29,29 +29,19 @@ node {
         rtMaven.deployer releaseRepo: 'maven-release-local', snapshotRepo: 'maven-snapshot-local', server: server
         //rtMaven.resolver releaseRepo: 'libs-release-local', snapshotRepo: 'libs-snapshot-local', server: server
         rtMaven.deployer.deployArtifacts = false // Disable artifacts deployment during Maven run
-
+	task 'Run tests and build code'
         buildInfo = Artifactory.newBuildInfo()
-    }
-    /*stage ('Test') {
-    	task 'Run Unit Test'
-        rtMaven.run pom: 'pom.xml', goals: 'clean test'
-    }*/
-    stage ('Install') {
-   	task 'Run Maven Install'
         rtMaven.run pom: 'pom.xml', goals: 'install', buildInfo: buildInfo
     }
  
-    stage ('Deploy') {
-    	task 'Maven deploy artifacts'
+    stage ('Deploy artifacts to Artifactory') {
+    	task 'Push build to artifactory'
 	rtMaven.deployer.deployArtifacts buildInfo
-    }
-        
-    stage ('Publish build info') {
-    	task 'Publish BuildInfo to artifactory'
+	task 'Publish Build Info'
         server.publishBuildInfo buildInfo
     }
    
-  stage('Deploy Application') {
+  stage('Deploy Application on Dev Environment') {
   	  
 	  appurl = "$server.url/maven-snapshot-local/de/codecentric/springboot-sample-app/0.0.1-SNAPSHOT/springboot-sample-app-0.0.1-20180228.053020-1.war"
           stackname = 'sample-tomcat-app'
@@ -60,7 +50,7 @@ node {
 	  region1 = sh(returnStdout: true, script: 'curl --silent http://169.254.169.254/latest/dynamic/instance-identity/document | jq -r .region').trim()
 	  subnetids = sh(returnStdout: true, script: "aws ec2 describe-subnets --filters 'Name=availabilityZone,Values=${region1}b,${region1}c' --query \"Subnets[?VpcId==\'$vpcid\'].SubnetId\" --region $region1 | jq -r 'join(\",\")' ").trim()
           echo "$subnetids"
-	  task 'Deploy application on an EC2 instance'
+	  task 'Create application EC2 stack and deploy application'
 	  dir ('./aws') {
 	    
 	     sh """sudo aws cloudformation create-stack --stack-name $stackname --region $region1 --template-body file://Tomcat-app-cfn.yaml \
