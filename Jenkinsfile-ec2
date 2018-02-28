@@ -63,7 +63,7 @@ node {
 	  task 'Deploy application on an EC2 instance'
 	  dir ('./aws') {
 	    
-	     sh "sudo /usr/bin/cfn-create-or-update --stack-name $stackname --region $region1 --template-body file://Tomcat-app-cfn.yaml --parameters \\"ParameterKey=KeyName,ParameterValue=rg-newkey\\" \\"ParameterKey=AppURL,ParameterValue=$appurl\\" \\"ParameterKey=VPCId,ParameterValue=$vpcid\\" \\"ParameterKey=EC2Subnets,ParameterValue=$subnetids\\" "
+	     sh "sudo /usr/bin/cfn-create-or-update --stack-name $stackname --region $region1 --template-body file://Tomcat-app-cfn.yaml --parameters \\\"ParameterKey=KeyName,ParameterValue=rg-newkey\\\" \\\"ParameterKey=AppURL,ParameterValue=$appurl\\\" \\\"ParameterKey=VPCId,ParameterValue=$vpcid\\\" \\\"ParameterKey=EC2Subnets,ParameterValue=$subnetids\\\" "
 	    
 	  }
   }
