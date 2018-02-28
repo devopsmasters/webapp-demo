@@ -43,7 +43,7 @@ node {
    
   stage('Deploy Application on Dev Environment') {
   	  
-	  appurl = "$server.url/maven-snapshot-local/de/codecentric/springboot-sample-app/0.0.1-SNAPSHOT/springboot-sample-app-0.0.1-20180228.053020-1.war"
+	  appurl = "$server.url/maven-release-local/de/codecentric/springboot-sample-app/0.0.1/springboot-sample-app-0.0.1.war"
           stackname = 'sample-tomcat-app'
 	  interface1 = sh(returnStdout: true, script: 'curl --silent http://169.254.169.254/latest/meta-data/network/interfaces/macs/')
 	  vpcid = sh(returnStdout: true, script: "curl --silent http://169.254.169.254/latest/meta-data/network/interfaces/macs/$interface1/vpc-id")
@@ -56,7 +56,8 @@ node {
 	     sh """sudo aws cloudformation create-stack --stack-name $stackname --region $region1 --template-body file://Tomcat-app-cfn.yaml \
 	           --parameters ParameterKey=KeyName,ParameterValue=rg-newkey ParameterKey=AppURL,ParameterValue=$appurl \
 		   ParameterKey=VPCId,ParameterValue=$vpcid ParameterKey=EC2Subnets,ParameterValue=\\\"$subnetids\\\" """
-	    
+	     
+	     sh "sudo aws cloudformation wait stack-create-complete --stack-name $stackname --region $region1"
 	  }
   }
     
