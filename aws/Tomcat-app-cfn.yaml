@@ -139,7 +139,7 @@ Resources:
                 #DBURL=${DBInstance.Endpoint.Address}:${DBInstance.Endpoint.Port}
           commands:
             a_download_tomcat:
-              command: wget http://www-eu.apache.org/dist/tomcat/tomcat-8/v8.5.28/bin/apache-tomcat-8.5.28.tar.gz -O /tmp/tomcat8.tar.gz
+              command: wget http://www-eu.apache.org/dist/tomcat/tomcat-8/v8.5.29/bin/apache-tomcat-8.5.29.tar.gz -O /tmp/tomcat8.tar.gz
             b_install_tomcat:
               command: mkdir tomcat8 && tar -xf /tmp/tomcat8.tar.gz --strip-components=1 -C tomcat8
               cwd: /opt
@@ -158,10 +158,8 @@ Resources:
       UserData:
         'Fn::Base64': !Sub |
           #!/bin/bash -x
-
           #remove java 7
           yum remove java -y
-
           #install java 8
           curl -L -b "oraclelicense=a" http://download.oracle.com/otn-pub/java/jdk/8u161-b12/2f38c3b165be4555a1fa6e98c45e0808/jdk-8u161-linux-x64.rpm -o /tmp/java8.rpm
           yum install /tmp/java8.rpm -y
@@ -211,12 +209,14 @@ Resources:
   DBInstance:
     Type: AWS::RDS::DBInstance
     Properties:
+      DBInstanceIdentifier: sample-rds-tomcat
       DBName: sampledb
       Engine: !Ref DatabaseType
+      StorageType: gp2
       MultiAZ: false
       MasterUsername: dbadmin
-      DBInstanceClass: db.m1.small
-      AllocatedStorage: '5'
+      DBInstanceClass: db.t2.micro
+      AllocatedStorage: '20'
       MasterUserPassword: MyPassword1
       DBSubnetGroupName: !Ref RDSSubnetGroup
       VPCSecurityGroups:
@@ -235,4 +235,3 @@ Outputs:
   ApplicationURL:
     Description: Tomcat Sample App URL
     Value: !Sub 'http://${ELB.DNSName}/springdemo'
-  
