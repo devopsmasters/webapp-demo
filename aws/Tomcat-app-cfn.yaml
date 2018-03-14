@@ -135,7 +135,8 @@ Resources:
           files:
             /etc/profile.d/appinputs.sh:
               content: !Sub |
-                DBURL=${DBInstance.Endpoint.Address}:${DBInstance.Endpoint.Port}
+                DBURL=test
+                #DBURL=${DBInstance.Endpoint.Address}:${DBInstance.Endpoint.Port}
           commands:
             a_download_tomcat:
               command: wget http://www-eu.apache.org/dist/tomcat/tomcat-8/v8.5.28/bin/apache-tomcat-8.5.28.tar.gz -O /tmp/tomcat8.tar.gz
