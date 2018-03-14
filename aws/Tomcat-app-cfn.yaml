@@ -92,7 +92,7 @@ Resources:
       HealthyThresholdCount: 5
       UnhealthyThresholdCount: 6
       Matcher:
-        HttpCode: '200'
+        HttpCode: '200-299'
       Port: 8080
       Protocol: HTTP
       Tags:
